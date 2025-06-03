@@ -1,5 +1,8 @@
 package com.example.imposto.calculoIR;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class CalculoIrResponse {
     private double baseCalculo;
     private double imposto;
@@ -19,7 +22,7 @@ public class CalculoIrResponse {
     }
 
     public void setBaseCalculo(double baseCalculo) {
-        this.baseCalculo = baseCalculo;
+        this.baseCalculo = arredondar(baseCalculo);
     }
 
     public double getImposto() {
@@ -27,7 +30,7 @@ public class CalculoIrResponse {
     }
 
     public void setImposto(double imposto) {
-        this.imposto = imposto;
+        this.imposto = arredondar(imposto);
     }
 
     public String getModelo() {
@@ -38,5 +41,7 @@ public class CalculoIrResponse {
         this.modelo = modelo;
     }
 
-    
+    private double arredondar(double valor) {
+        return new BigDecimal(valor).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
 }
