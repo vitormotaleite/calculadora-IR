@@ -1,4 +1,4 @@
-package com.example.imposto.model;
+package com.example.imposto.calculoIR;
 
 public class CalcuuloIrRequest {
     private int ano;

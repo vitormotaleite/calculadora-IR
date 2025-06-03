@@ -1,4 +1,4 @@
-package com.example.imposto.model;
+package com.example.imposto.faixa;
 
 public class FaixaIR {
 
