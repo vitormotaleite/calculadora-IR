@@ -93,5 +93,42 @@ public class TabelaIR {
         tab.setDescontoSimplificado(16754.34);
         return tab;
     }
+
+    public double calcularImposto(double base) {
+        double imposto = 0.0;
+        double baseRestante = base;
+        double limiteInferior = 0.0;
+
+        for(FaixaIR faixa: faixas) {
+            Double limiteSuperior = faixa.getLimiteSuperior();
+            double aliquota = faixa.getAliquota();
+
+            if(limiteSuperior == null) {
+                imposto += (baseRestante - limiteInferior) * aliquota;
+                break;
+            }
+
+            if(base > limiteSuperior) {
+                imposto += (limiteSuperior - limiteInferior) * aliquota;
+            }
+            else {
+                imposto += (base - limiteInferior) * aliquota;
+                break;
+            }
+
+            limiteInferior = limiteSuperior;
+        }
+
+        for(int i = faixas.size() - 1; i >= 0; i--) {
+            Double limite = faixas.get(i).getLimiteSuperior();
+            if(limite == null || base <= limite) {
+                imposto -= faixas.get(i).getDeducao();
+                break;
+            }
+        }
+
+        return Math.max(0, imposto);
+
+    }
     
 }

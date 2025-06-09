@@ -1,41 +1,67 @@
 package com.example.imposto.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.imposto.calculoIR.CalculoIrResponse;
 import com.example.imposto.calculoIR.CalcuuloIrRequest;
-import com.example.imposto.faixa.FaixaIR;
-import com.example.imposto.tabelas.TabelaIR;
+import com.example.imposto.calculoIR.HistoricoCalculo;
+import com.example.imposto.repository.HistoricoRepository;
 import com.example.imposto.tabelas.TabelaPorAno;
+
+import lombok.var;
 
 @Service
 public class CalculadoraService {
-    
-    public CalculoIrResponse calcularImposto(CalcuuloIrRequest req) {
-        TabelaIR tabela = TabelaPorAno.pegarTabela(req.getAno());
 
-        double base;
+    @Autowired
+    HistoricoRepository historicoRepository;
 
-        if(req.isSimplificado()) {
-            base = Math.max(0, req.getRendaAnual() - tabela.getDescontoSimplificado());
-        }
-        else {
-            double deducaoDep = req.getDependentes() * tabela.getDeducaoDependente();
-            double deducaoInstr = Math.min(req.getDespesasInstrucao(), tabela.getLimiteInstrucao());
-            base = Math.max(0, req.getRendaAnual() - deducaoDep - deducaoInstr);
-        }
+    public CalculoIrResponse calcularImposto(CalcuuloIrRequest request) {
 
-        FaixaIR faixa = tabela.getFaixas().stream().filter(f -> f.getLimiteSuperior() == null ||  base <= f.getLimiteSuperior()).findFirst().orElse(null);
-        double imposto = 0.0;
+        var dadosAno = TabelaPorAno.pegarTabela(request.getAno());
 
-        if(faixa != null && faixa.getAliquota() > 0) {
-            imposto = base * faixa.getAliquota() - faixa.getDeducao();
-        }
+        double renda = request.getRendaAnual();
+        double deducaodependentes = request.getDependentes() * dadosAno.getDeducaoDependente();
+        double deducaoInstrucao = Math.min(request.getDespesasInstrucao(), dadosAno.getLimiteInstrucao());
 
-        CalculoIrResponse resp = new CalculoIrResponse();
-        resp.setBaseCalculo(base);
-        resp.setImposto(Math.max(0, imposto));
-        resp.setModelo(req.isSimplificado() ? "Simplificado" : "Completo");
-        return resp;
+        double baseCompleta = renda - deducaodependentes -deducaoInstrucao;
+        double impostoCompleto = dadosAno.calcularImposto(baseCompleta);
+
+        double descontoSimplificado = Math.min(dadosAno.getDescontoSimplificado(), renda * 0.2);
+        double baseSimplificada = renda - descontoSimplificado;
+        double impostoSimplificado = dadosAno.calcularImposto(baseSimplificada);
+
+        boolean usarSimplificado = request.isSimplificado() && impostoSimplificado < impostoCompleto;
+
+        double impostoFinal = usarSimplificado ? impostoSimplificado: impostoCompleto;
+        double baseFinal = usarSimplificado ? baseSimplificada: baseCompleta;
+
+        CalculoIrResponse response = new CalculoIrResponse();
+        response.setImposto(arredondar(impostoFinal));
+        response.setBaseCalculo(arredondar(baseFinal));
+        response.setModelo(usarSimplificado ? "Simplificado" : "Completo");
+
+        HistoricoCalculo historico = new HistoricoCalculo();
+        historico.setAno(request.getAno());
+        historico.setRendaAnual(request.getRendaAnual());
+        historico.setDependentes(request.getDependentes());
+        historico.setDespesasInstrucao(request.getDespesasInstrucao());
+        historico.setSimplificado(request.isSimplificado());
+        historico.setBaseCalculo(response.getBaseCalculo());
+        historico.setImposto(response.getImposto());
+        historico.setModelo(response.getModelo());
+
+        historicoRepository.save(historico);
+        return response;
     }
+
+    private double arredondar(double valor) {
+        return new BigDecimal(valor).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+    
+    
 }
