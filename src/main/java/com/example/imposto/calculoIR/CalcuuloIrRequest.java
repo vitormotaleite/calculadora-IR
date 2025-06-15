@@ -1,10 +1,23 @@
 package com.example.imposto.calculoIR;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 public class CalcuuloIrRequest {
+    
+    @NotNull(message = "o ano é obrigatório")
     private int ano;
+    @NotNull(message =  "a renda anual é obrigatória")
+    @Positive(message = "a renda anual deve ser maior que zero")
     private double rendaAnual;
+    @NotNull(message =  "o número de dependentes é obrigatório")
+    @Min(value = 0, message = "número de dependentes não pode ser negativo")
     private int dependentes;
+    @NotNull(message =  "as despesas de instrução são obrigatórias")
+    @Min(value = 0, message = "despesas de instrução não podem ser negativas")
     private double despesasInstrucao;
+    @NotNull(message =  "é necessário informar se deseja ser simplificado")
     private boolean simplificado;
     
     public CalcuuloIrRequest() {

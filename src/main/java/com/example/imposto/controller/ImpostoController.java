@@ -10,6 +10,8 @@ import com.example.imposto.calculoIR.CalculoIrResponse;
 import com.example.imposto.calculoIR.CalcuuloIrRequest;
 import com.example.imposto.service.CalculadoraService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/imposto")
 public class ImpostoController {
@@ -18,7 +20,7 @@ public class ImpostoController {
     private CalculadoraService calculadoraService;
 
     @PostMapping
-    public CalculoIrResponse calcular(@RequestBody CalcuuloIrRequest req) {
+    public CalculoIrResponse calcular(@RequestBody @Valid CalcuuloIrRequest req) {
         return calculadoraService.calcularImposto(req);
     }
     

@@ -3,6 +3,8 @@ package com.example.imposto.calculoIR;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,6 +30,7 @@ public class HistoricoCalculo implements Serializable {
     private Double imposto;
     private String modelo;
 
+    @CreationTimestamp
     private LocalDateTime dataHora;
 
     public HistoricoCalculo() {
