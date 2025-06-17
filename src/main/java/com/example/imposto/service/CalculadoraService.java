@@ -10,9 +10,8 @@ import com.example.imposto.calculoIR.CalculoIrResponse;
 import com.example.imposto.calculoIR.CalcuuloIrRequest;
 import com.example.imposto.calculoIR.HistoricoCalculo;
 import com.example.imposto.repository.HistoricoRepository;
+import com.example.imposto.tabelas.TabelaIR;
 import com.example.imposto.tabelas.TabelaPorAno;
-
-import lombok.var;
 
 @Service
 public class CalculadoraService {
@@ -22,7 +21,7 @@ public class CalculadoraService {
 
     public CalculoIrResponse calcularImposto(CalcuuloIrRequest request) {
 
-        var dadosAno = TabelaPorAno.pegarTabela(request.getAno());
+        TabelaIR dadosAno = TabelaPorAno.pegarTabela(request.getAno());
 
         double renda = request.getRendaAnual();
         double deducaodependentes = request.getDependentes() * dadosAno.getDeducaoDependente();
