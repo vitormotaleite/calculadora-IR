@@ -11,7 +11,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
+
+@Getter
+@Setter
+@Builder
 @Entity
 @Table(name = "tb_historico_calculo")
 public class HistoricoCalculo implements Serializable {
