@@ -61,6 +61,28 @@ function Calculadora() {
           />
         </label>
 
+        <label>
+          Dependentes:
+          <input
+            type="number"
+            name="dependentes"
+            value={form.dependentes}
+            onChange={handleChange}
+            required
+          />
+        </label>
+
+        <label>
+          Despesas com Instrução:
+          <input
+            type="number"
+            name="despesasInstrucao"
+            value={form.despesasInstrucao}
+            onChange={handleChange}
+            required
+          />
+        </label>
+
         <label className="checkbox">
           <input
             type="checkbox"

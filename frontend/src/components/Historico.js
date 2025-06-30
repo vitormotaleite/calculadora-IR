@@ -10,8 +10,8 @@ function Historico() {
         let url = "https://calculo-imposto-77b79255db57.herokuapp.com/api/historico";
         const params = [];
 
-        if (ano) params.push('ano=${ano}');
-        if (modelo) params.push('modelo=${modelo}');
+        if (ano) params.push(`ano=${ano}`);
+        if (modelo) params.push(`modelo=${modelo}`);
         if (params.length) url += "?" + params.join("&");
 
         fetch(url).then
@@ -57,7 +57,7 @@ function Historico() {
                         <th>Ano</th>
                         <th>Renda</th>
                         <th>Dependentes</th>
-                        <th>Educação</th>
+                        <th>Despesa com Instrução</th>
                         <th>Modelo</th>
                         <th>Base</th>
                         <th>Imposto</th>
