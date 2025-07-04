@@ -5,24 +5,27 @@ function Historico() {
     const [historico, setHistorico] = useState([]);
     const [ano, setAno] = useState("");
     const [modelo, setModelo] = useState("");
+    const [pagina, setPagina] = useState(0);
+    const [totalPaginas, setTotalPaginas] = useState(0);
 
     const fetchHistorico = () => {
-        let url = "https://calculo-imposto-77b79255db57.herokuapp.com/api/historico";
-        const params = [];
+        let url = `https://calculo-imposto-77b79255db57.herokuapp.com/api/historico?page=${pagina}&size=5`;
 
-        if (ano) params.push(`ano=${ano}`);
-        if (modelo) params.push(`modelo=${modelo}`);
-        if (params.length) url += "?" + params.join("&");
+        if (ano) url += `&ano=${ano}`;
+        if (modelo) url += `&modelo=${modelo}`;
 
         fetch(url).then
             (res => res.json()).then
-            (data => setHistorico(data)).catch
+            (data => {
+                setHistorico(data.content);
+                setTotalPaginas(data.totalPages);
+            }).catch
             (err => console.error("Erro ao buscar histórico:", err));
     };
 
     useEffect(() => {
         fetchHistorico();
-    }, []);
+    }, [pagina]);
 
     return (
         <div style={{ marginTop: "30px" }}>
@@ -78,6 +81,15 @@ function Historico() {
                     ))}
                 </tbody>
             </table>
+            <div style={{marginTop: "10px"}}>
+                <button onClick={() => setPagina(pagina - 1)} disabled={pagina === 0}>
+                    Anterior
+                </button>
+                &nbsp; Página {pagina + 1} de {totalPaginas} &nbsp;
+                <button onClick={() => setPagina(pagina + 1)} disabled={pagina +1 >= totalPaginas}>
+                    Próxima
+                </button>
+            </div>
         </div>
     );
 
