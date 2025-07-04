@@ -8,6 +8,35 @@ function Historico() {
     const [pagina, setPagina] = useState(0);
     const [totalPaginas, setTotalPaginas] = useState(0);
 
+    const exportarCSV = () => {
+        const header = [
+            "ID", "Ano", "Renda", "Dependentes", "Instrução", "Modelo", "Base", "Imposto"
+        ];
+
+        const rows = historico.map(item => [
+            item.id,
+            item.ano,
+            item.rendaAnual.toFixed(2),
+            item.dependentes,
+            item.despesasInstrucao.toFixed(2),
+            item.modelo,
+            item.baseCalculo.toFixed(2),
+            item.imposto.toFixed(2)
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8," +
+            [header, ...rows].map(e => e.join(",")).join("\n");
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "historico_ir.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
     const fetchHistorico = () => {
         let url = `https://calculo-imposto-77b79255db57.herokuapp.com/api/historico?page=${pagina}&size=5`;
 
@@ -52,7 +81,11 @@ function Historico() {
                 </label>
                 &nbsp;&nbsp;
                 <button onClick={fetchHistorico}>Filtrar</button>
+                <button onClick={exportarCSV} style={{ marginLeft: "10px" }}>
+                    Exportar CSV
+                </button>
             </div>
+
             <table border="1" cellPadding="5">
                 <thead>
                     <tr>
@@ -81,12 +114,12 @@ function Historico() {
                     ))}
                 </tbody>
             </table>
-            <div style={{marginTop: "10px"}}>
+            <div style={{ marginTop: "10px" }}>
                 <button onClick={() => setPagina(pagina - 1)} disabled={pagina === 0}>
                     Anterior
                 </button>
                 &nbsp; Página {pagina + 1} de {totalPaginas} &nbsp;
-                <button onClick={() => setPagina(pagina + 1)} disabled={pagina +1 >= totalPaginas}>
+                <button onClick={() => setPagina(pagina + 1)} disabled={pagina + 1 >= totalPaginas}>
                     Próxima
                 </button>
             </div>
