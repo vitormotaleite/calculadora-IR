@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.imposto.calculoIR.CalculoIrResponse;
@@ -27,7 +29,7 @@ public class CalculadoraService {
         double deducaodependentes = request.getDependentes() * dadosAno.getDeducaoDependente();
         double deducaoInstrucao = Math.min(request.getDespesasInstrucao(), dadosAno.getLimiteInstrucao());
 
-        double baseCompleta = renda - deducaodependentes -deducaoInstrucao;
+        double baseCompleta = renda - deducaodependentes - deducaoInstrucao;
         double impostoCompleto = dadosAno.calcularImposto(baseCompleta);
 
         double descontoSimplificado = Math.min(dadosAno.getDescontoSimplificado(), renda * 0.2);
@@ -36,8 +38,8 @@ public class CalculadoraService {
 
         boolean usarSimplificado = request.isSimplificado() && impostoSimplificado < impostoCompleto;
 
-        double impostoFinal = usarSimplificado ? impostoSimplificado: impostoCompleto;
-        double baseFinal = usarSimplificado ? baseSimplificada: baseCompleta;
+        double impostoFinal = usarSimplificado ? impostoSimplificado : impostoCompleto;
+        double baseFinal = usarSimplificado ? baseSimplificada : baseCompleta;
 
         CalculoIrResponse response = new CalculoIrResponse();
         response.setImposto(arredondar(impostoFinal));
@@ -61,6 +63,17 @@ public class CalculadoraService {
     private double arredondar(double valor) {
         return new BigDecimal(valor).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
-    
-    
+
+    public Page<HistoricoCalculo> listarComFiltros(Integer ano, String modelo, Pageable pageable) {
+        if (ano != null && modelo != null) {
+            return historicoRepository.findByAnoAndModeloOrderByIdDesc(ano, modelo,pageable);
+        } else if (ano != null) {
+            return historicoRepository.findByAnoOrderByIdDesc(ano,pageable);
+        } else if (modelo != null) {
+            return historicoRepository.findByModeloOrderByIdDesc(modelo,pageable);
+        } else {
+            return historicoRepository.findAll(pageable);
+        }
+    }
+
 }
