@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
 
 function Historico() {
 
@@ -25,7 +27,7 @@ function Historico() {
         ]);
 
         const csvContent = "data:text/csv;charset=utf-8," +
-            [header, ...rows].map(e => e.join(",")).join("\n");
+            [header, ...rows].map(e => e.join(";")).join("\n");
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
@@ -36,6 +38,37 @@ function Historico() {
         link.click();
         document.body.removeChild(link);
     }
+
+    const exportarPDF = () => {
+        const doc = new jsPDF();
+
+        doc.setFontSize(14);
+        doc.text("Histórico de Cálculos de IR", 14, 15);
+
+        const dados = historico.map((item) => [
+            item.id,
+            item.ano,
+            `R$ ${item.rendaAnual.toFixed(2)}`,
+            item.dependentes,
+            `R$ ${item.despesasInstrucao.toFixed(2)}`,
+            item.modelo,
+            `R$ ${item.baseCalculo.toFixed(2)}`,
+            `R$ ${item.imposto.toFixed(2)}`
+        ]);
+
+        autoTable(doc, {
+            head: [[
+                "ID", "Ano", "Renda", "Dependentes", "Instrução", "Modelo", "Base", "Imposto"
+            ]],
+            body: dados,
+            startY: 20,
+            styles: { fontSize: 10, cellPadding:2 },
+            headStyles: {fillColor:[41,128,185], textColor: 255},
+            alternateRowStyle:{fillColor:[245,245,245]}
+        });
+
+        doc.save("historico_ir.pdf");
+    };
 
     const fetchHistorico = () => {
         let url = `https://calculo-imposto-77b79255db57.herokuapp.com/api/historico?page=${pagina}&size=5`;
@@ -81,9 +114,8 @@ function Historico() {
                 </label>
                 &nbsp;&nbsp;
                 <button onClick={fetchHistorico}>Filtrar</button>
-                <button onClick={exportarCSV} style={{ marginLeft: "10px" }}>
-                    Exportar CSV
-                </button>
+                <button onClick={exportarCSV} style={{ marginLeft: "10px" }}>Exportar CSV</button>
+                <button onClick={exportarPDF} style={{ marginLeft: "10px" }}>Exportar PDF</button>
             </div>
 
             <table border="1" cellPadding="5">
