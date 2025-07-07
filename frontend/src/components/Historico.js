@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
+import GraficoHistorico from "./GraficoHistorico";
 
 function Historico() {
 
@@ -62,9 +63,9 @@ function Historico() {
             ]],
             body: dados,
             startY: 20,
-            styles: { fontSize: 10, cellPadding:2 },
-            headStyles: {fillColor:[41,128,185], textColor: 255},
-            alternateRowStyle:{fillColor:[245,245,245]}
+            styles: { fontSize: 10, cellPadding: 2 },
+            headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+            alternateRowStyle: { fillColor: [245, 245, 245] }
         });
 
         doc.save("historico_ir.pdf");
@@ -79,15 +80,16 @@ function Historico() {
         fetch(url).then
             (res => res.json()).then
             (data => {
-                setHistorico(data.content);
-                setTotalPaginas(data.totalPages);
-            }).catch
-            (err => console.error("Erro ao buscar histórico:", err));
+                console.log("Dados recebidos:", data.content);
+                setHistorico(data.content || []);
+                setTotalPaginas(data.totalPages || 0);
+            })
+            .catch((err) => console.error("Erro ao buscar histórico:", err));
     };
 
     useEffect(() => {
         fetchHistorico();
-    }, [pagina]);
+    }, [pagina, ano, modelo]);
 
     return (
         <div style={{ marginTop: "30px" }}>
@@ -155,6 +157,7 @@ function Historico() {
                     Próxima
                 </button>
             </div>
+            <GraficoHistorico dados={historico} />
         </div>
     );
 
