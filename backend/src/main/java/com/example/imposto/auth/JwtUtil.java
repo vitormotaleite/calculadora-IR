@@ -7,7 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JwtUtil {
 
-    private static final String SECRET = "MYJWTSECRET";
+    private static final String SECRET = "segredo-seguro";
     private static final long EXPIRATION_TIME = 86400000;
 
     public static String gerarToken(String username) {
