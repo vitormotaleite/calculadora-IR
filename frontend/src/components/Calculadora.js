@@ -22,9 +22,10 @@ function Calculadora() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
     const response = await fetch("https://calculo-imposto-77b79255db57.herokuapp.com/api/imposto", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, },
       body: JSON.stringify({
         ...form,
         rendaAnual: parseFloat(form.rendaAnual),
@@ -32,6 +33,13 @@ function Calculadora() {
         despesasInstrucao: parseFloat(form.despesasInstrucao),
       }),
     });
+
+    if (!response.ok) {
+      const errorText = await response.text(); // captura a resposta, mesmo se não for JSON
+      console.error("Erro:", errorText);
+      alert("Erro: " + response.status + " - " + errorText);
+      return;
+    }
 
     const data = await response.json();
     setResultado(data);

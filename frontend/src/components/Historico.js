@@ -72,24 +72,39 @@ function Historico() {
     };
 
     const fetchHistorico = () => {
+        const token = localStorage.getItem("token");
         let url = `https://calculo-imposto-77b79255db57.herokuapp.com/api/historico?page=${pagina}&size=5`;
 
         if (ano) url += `&ano=${ano}`;
         if (modelo) url += `&modelo=${modelo}`;
 
-        fetch(url).then
-            (res => res.json()).then
-            (data => {
-                console.log("Dados recebidos:", data.content);
+        fetch(url, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }).then
+            (async (res) => {
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(`Erro ${res.status}: ${text}`);
+                }
+                return res.json();
+            })
+            .then((data) => {
                 setHistorico(data.content || []);
                 setTotalPaginas(data.totalPages || 0);
             })
-            .catch((err) => console.error("Erro ao buscar histórico:", err));
+            .catch((err) => {
+                console.error("Erro ao buscar histórico:", err.message);
+                alert(err.message);
+            });
+
     };
 
     useEffect(() => {
         fetchHistorico();
     }, [pagina, ano, modelo]);
+
 
     return (
         <div style={{ marginTop: "30px" }}>
@@ -160,7 +175,6 @@ function Historico() {
             <GraficoHistorico dados={historico} />
         </div>
     );
-
 }
 
 export default Historico;
