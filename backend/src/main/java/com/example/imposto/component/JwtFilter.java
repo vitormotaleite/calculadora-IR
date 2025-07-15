@@ -25,6 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 String user = JwtUtil.validarToken(token);
                 request.setAttribute("usuario", user);
             } catch (Exception e) {
+                e.printStackTrace();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
